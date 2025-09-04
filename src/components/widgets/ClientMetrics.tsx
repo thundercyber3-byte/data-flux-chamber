@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Mail, Camera, DollarSign } from 'lucide-react';
+import { Mail, Camera, IndianRupee } from 'lucide-react';
 
 interface ClientData {
   clients: string;
@@ -65,7 +65,7 @@ export function ClientMetrics({ data }: ClientMetricsProps) {
                   <span className="text-accent font-medium">{client.headshots}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="h-4 w-4 text-primary" />
+                  <IndianRupee className="h-4 w-4 text-primary" />
                   <span className="text-primary font-medium">
                     ₹{client.price.toLocaleString('en-IN')}
                   </span>

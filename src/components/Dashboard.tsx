@@ -32,19 +32,37 @@ export function Dashboard() {
       const csvText = await response.text();
       
       const lines = csvText.split('\n').filter(line => line.trim());
-      const headers = lines[0].split(',');
       
+      // Parse CSV properly handling quoted values
       const parsedData = lines.slice(1).map(line => {
-        const values = line.split(',');
+        // Split by comma but respect quoted values
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            values.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        values.push(current.trim()); // Add the last value
+        
         return {
           clients: values[0]?.trim() || '',
           headshots: parseInt(values[1]) || 0,
-          price: parseFloat(values[2]?.replace(/[₹,]/g, '')) || 0,
+          price: parseFloat(values[2]?.replace(/[₹,"\s]/g, '')) || 0, // Remove rupee symbol, commas, quotes, and spaces
           status: values[3]?.trim() || '',
           email: values[4]?.trim() || ''
         };
       }).filter(item => item.clients && item.clients !== '');
 
+      console.log('Parsed data:', parsedData); // Debug log
       setData(parsedData);
     } catch (error) {
       console.error('Error fetching data:', error);
