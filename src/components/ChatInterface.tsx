@@ -46,7 +46,7 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://toyoureternity.app.n8n.cloud/webhook-test/a233a074-4789-4a88-8c04-c45632b53895', {
+      const response = await fetch('https://toyoureternity.app.n8n.cloud/webhook/a233a074-4789-4a88-8c04-c45632b53895', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,12 +61,7 @@ export function ChatInterface() {
       
       if (response.ok) {
         const data = await response.text();
-        try {
-          const jsonData = JSON.parse(data);
-          botResponse = jsonData.response || jsonData.message || data;
-        } catch {
-          botResponse = data;
-        }
+        botResponse = data;
       }
 
       const botMessage: Message = {
