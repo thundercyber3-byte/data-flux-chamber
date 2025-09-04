@@ -1,0 +1,196 @@
+import { useState, useRef, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Send, Bot, User, Loader2 } from 'lucide-react';
+
+interface Message {
+  id: string;
+  content: string;
+  type: 'user' | 'bot';
+  timestamp: Date;
+}
+
+export function ChatInterface() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: inputValue.trim(),
+      type: 'user',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://toyoureternity.app.n8n.cloud/webhook-test/a233a074-4789-4a88-8c04-c45632b53895', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage.content,
+          timestamp: userMessage.timestamp.toISOString()
+        })
+      });
+
+      let botResponse = 'Sorry, I couldn\'t process your request.';
+      
+      if (response.ok) {
+        const data = await response.text();
+        try {
+          const jsonData = JSON.parse(data);
+          botResponse = jsonData.response || jsonData.message || data;
+        } catch {
+          botResponse = data;
+        }
+      }
+
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: botResponse,
+        type: 'bot',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Failed to connect to the server. Please try again.',
+        type: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  return (
+    <Card className="glass-card h-[600px] flex flex-col">
+      <div className="p-4 border-b border-border/20">
+        <h3 className="text-xl font-bold neon-text text-primary">AI Assistant</h3>
+        <p className="text-sm text-muted-foreground">Chat with your AI assistant</p>
+      </div>
+
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+        <div className="space-y-4">
+          {messages.length === 0 && (
+            <div className="text-center text-muted-foreground py-8">
+              <Bot className="h-12 w-12 mx-auto mb-4 text-primary/50" />
+              <p>Start a conversation with your AI assistant</p>
+            </div>
+          )}
+          
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {message.type === 'bot' && (
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Bot className="h-4 w-4 text-primary" />
+                  </div>
+                </div>
+              )}
+              
+              <div
+                className={`max-w-[70%] rounded-lg p-3 ${
+                  message.type === 'user'
+                    ? 'bg-primary text-primary-foreground ml-auto'
+                    : 'bg-muted/50 text-foreground'
+                }`}
+              >
+                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <p className="text-xs opacity-70 mt-1">
+                  {message.timestamp.toLocaleTimeString()}
+                </p>
+              </div>
+
+              {message.type === 'user' && (
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+                    <User className="h-4 w-4 text-secondary" />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className="flex gap-3 justify-start">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Bot className="h-4 w-4 text-primary" />
+                </div>
+              </div>
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">Thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      <div className="p-4 border-t border-border/20">
+        <div className="flex gap-2">
+          <Textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Type your message..."
+            className="resize-none min-h-[40px] max-h-[120px] bg-background/50 border-border/50 focus:border-primary/50"
+            disabled={isLoading}
+          />
+          <Button
+            onClick={sendMessage}
+            disabled={!inputValue.trim() || isLoading}
+            className="px-3"
+            variant="default"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}

@@ -5,6 +5,7 @@ import { RevenueChart } from '@/components/widgets/RevenueChart';
 import { StatusChart } from '@/components/widgets/StatusChart';
 import { ClientMetrics } from '@/components/widgets/ClientMetrics';
 import { DashboardHeader } from '@/components/DashboardHeader';
+import { ChatInterface } from '@/components/ChatInterface';
 import { Activity, TrendingUp, Users, DollarSign, Target, Zap } from 'lucide-react';
 
 interface ClientData {
@@ -153,11 +154,19 @@ export function Dashboard() {
           </Card>
         </div>
 
-        {/* Client Metrics */}
-        <Card className="glass-card p-6">
-          <h3 className="text-xl font-bold mb-6 neon-text text-accent">Client Portfolio</h3>
-          <ClientMetrics data={data} />
-        </Card>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Client Metrics */}
+          <Card className="glass-card p-6 xl:col-span-2">
+            <h3 className="text-xl font-bold mb-6 neon-text text-accent">Client Portfolio</h3>
+            <ClientMetrics data={data} />
+          </Card>
+
+          {/* Chat Interface */}
+          <div className="xl:col-span-1">
+            <ChatInterface />
+          </div>
+        </div>
       </div>
     </div>
   );
