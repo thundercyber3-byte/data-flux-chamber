@@ -61,7 +61,16 @@ export function ChatInterface() {
       
       if (response.ok) {
         const data = await response.text();
-        botResponse = data;
+        try {
+          const jsonData = JSON.parse(data);
+          // Extract clean text, removing output fields and brackets
+          botResponse = jsonData.output || jsonData.response || jsonData.message || jsonData.text || data;
+          // Remove any remaining brackets or quotes
+          botResponse = botResponse.replace(/^\[|\]$/g, '').replace(/^"|"$/g, '').trim();
+        } catch {
+          // If it's not JSON, use the raw text
+          botResponse = data.replace(/^\[|\]$/g, '').replace(/^"|"$/g, '').trim();
+        }
       }
 
       const botMessage: Message = {
