@@ -37,6 +37,15 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
     scrollToBottom();
   }, [messages]);
 
+  // Focus textarea when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 200);
+    }
+  }, [isOpen]);
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
@@ -97,10 +106,10 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
-      // Refocus the textarea after sending message
+      // Refocus the textarea after sending message with a longer delay
       setTimeout(() => {
         textareaRef.current?.focus();
-      }, 100);
+      }, 300);
     }
   };
 
@@ -108,6 +117,10 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+      // Keep focus after Enter
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 50);
     }
   };
 
@@ -214,6 +227,7 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
               className="resize-none min-h-[40px] max-h-[120px] bg-background/50 border-border/50 focus:border-primary/50"
+              autoFocus
               disabled={isLoading}
             />
             <Button
