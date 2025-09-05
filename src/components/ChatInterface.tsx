@@ -109,7 +109,7 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="glass-card max-w-2xl h-[600px] flex flex-col p-0">
+      <DialogContent className="glass-card max-w-sm w-80 h-[500px] flex flex-col p-0 fixed bottom-20 right-6 top-auto left-auto translate-x-0 translate-y-0 m-0">
         <DialogHeader className="p-4 border-b border-border/20">
           <DialogTitle className="text-xl font-bold neon-text text-primary">AI Assistant</DialogTitle>
           <p className="text-sm text-muted-foreground">Chat with your AI assistant</p>
