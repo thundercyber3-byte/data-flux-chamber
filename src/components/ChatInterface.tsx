@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Send, Bot, User, Loader2, X } from 'lucide-react';
 
 interface Message {
@@ -108,12 +107,35 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="glass-card max-w-sm w-80 h-[500px] flex flex-col p-0 fixed bottom-20 right-6 top-auto left-auto translate-x-0 translate-y-0 m-0">
-        <DialogHeader className="p-4 border-b border-border/20">
-          <DialogTitle className="text-xl font-bold neon-text text-primary">AI Assistant</DialogTitle>
-          <p className="text-sm text-muted-foreground">Chat with your AI assistant</p>
-        </DialogHeader>
+    <>
+      {/* Custom overlay with transparency */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 animate-fade-in"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Chat window with smooth animation */}
+      {isOpen && (
+        <div className="fixed bottom-20 right-6 z-50 animate-scale-in">
+          <div className="glass-card max-w-sm w-80 h-[500px] flex flex-col p-0 shadow-2xl">
+            <div className="p-4 border-b border-border/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold neon-text text-primary">AI Assistant</h3>
+                  <p className="text-sm text-muted-foreground">Chat with your AI assistant</p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onClose}
+                  className="h-8 w-8 rounded-full hover:bg-muted/50"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
 
         <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
           <div className="space-y-4">
@@ -201,8 +223,10 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
               )}
             </Button>
           </div>
+            </div>
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </>
   );
 }
