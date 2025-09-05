@@ -22,6 +22,7 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -96,6 +97,10 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      // Refocus the textarea after sending message
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
     }
   };
 
@@ -203,6 +208,7 @@ export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
         <div className="p-4 border-t border-border/20">
           <div className="flex gap-2">
             <Textarea
+              ref={textareaRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
