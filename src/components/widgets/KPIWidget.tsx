@@ -13,9 +13,9 @@ interface KPIWidgetProps {
 
 export function KPIWidget({ title, value, icon: Icon, trend, color, className }: KPIWidgetProps) {
   const colorClasses = {
-    primary: 'text-primary border-primary/30 shadow-glow-cyan',
-    secondary: 'text-secondary border-secondary/30 shadow-glow-purple',
-    accent: 'text-accent border-accent/30 shadow-glow-green'
+    primary: 'text-primary border-primary/30',
+    secondary: 'text-secondary border-secondary/30',
+    accent: 'text-accent border-accent/30'
   };
 
   const trendColor = trend && trend > 0 ? 'text-accent' : 'text-destructive';
@@ -23,7 +23,7 @@ export function KPIWidget({ title, value, icon: Icon, trend, color, className }:
 
   return (
     <Card className={cn(
-      'glass-card p-6 group hover:scale-105 transition-all duration-300 cyber-pulse',
+      'glass-card p-6 group hover:scale-105 transition-all duration-300',
       colorClasses[color],
       className
     )}>
