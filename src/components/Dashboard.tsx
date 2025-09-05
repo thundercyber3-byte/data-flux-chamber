@@ -6,7 +6,7 @@ import { StatusChart } from '@/components/widgets/StatusChart';
 import { ClientMetrics } from '@/components/widgets/ClientMetrics';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { ChatInterface } from '@/components/ChatInterface';
-import { Activity, TrendingUp, Users, DollarSign, Target, Zap } from 'lucide-react';
+import { Activity, TrendingUp, Users, DollarSign, Target, Zap, MessageCircle } from 'lucide-react';
 
 interface ClientData {
   clients: string;
@@ -19,6 +19,7 @@ interface ClientData {
 export function Dashboard() {
   const [data, setData] = useState<ClientData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -154,20 +155,23 @@ export function Dashboard() {
           </Card>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Client Metrics */}
-          <Card className="glass-card p-6 xl:col-span-2">
-            <h3 className="text-xl font-bold mb-6 neon-text text-accent">Client Portfolio</h3>
-            <ClientMetrics data={data} />
-          </Card>
-
-          {/* Chat Interface */}
-          <div className="xl:col-span-1">
-            <ChatInterface />
-          </div>
-        </div>
+        {/* Client Metrics */}
+        <Card className="glass-card p-6">
+          <h3 className="text-xl font-bold mb-6 neon-text text-accent">Client Portfolio</h3>
+          <ClientMetrics data={data} />
+        </Card>
       </div>
+
+      {/* Floating Chat Button */}
+      <button
+        onClick={() => setIsChatOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 neon-glow"
+      >
+        <MessageCircle className="h-6 w-6" />
+      </button>
+
+      {/* Chat Modal */}
+      <ChatInterface isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 }

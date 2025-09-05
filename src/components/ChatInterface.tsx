@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Send, Bot, User, Loader2, X } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -12,7 +13,12 @@ interface Message {
   timestamp: Date;
 }
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function ChatInterface({ isOpen, onClose }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -102,99 +108,101 @@ export function ChatInterface() {
   };
 
   return (
-    <Card className="glass-card h-[600px] flex flex-col">
-      <div className="p-4 border-b border-border/20">
-        <h3 className="text-xl font-bold neon-text text-primary">AI Assistant</h3>
-        <p className="text-sm text-muted-foreground">Chat with your AI assistant</p>
-      </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="glass-card max-w-2xl h-[600px] flex flex-col p-0">
+        <DialogHeader className="p-4 border-b border-border/20">
+          <DialogTitle className="text-xl font-bold neon-text text-primary">AI Assistant</DialogTitle>
+          <p className="text-sm text-muted-foreground">Chat with your AI assistant</p>
+        </DialogHeader>
 
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center text-muted-foreground py-8">
-              <Bot className="h-12 w-12 mx-auto mb-4 text-primary/50" />
-              <p>Start a conversation with your AI assistant</p>
-            </div>
-          )}
-          
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.type === 'bot' && (
+        <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+          <div className="space-y-4">
+            {messages.length === 0 && (
+              <div className="text-center text-muted-foreground py-8">
+                <Bot className="h-12 w-12 mx-auto mb-4 text-primary/50" />
+                <p>Start a conversation with your AI assistant</p>
+              </div>
+            )}
+            
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                {message.type === 'bot' && (
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Bot className="h-4 w-4 text-primary" />
+                    </div>
+                  </div>
+                )}
+                
+                <div
+                  className={`max-w-[70%] rounded-lg p-3 ${
+                    message.type === 'user'
+                      ? 'bg-primary text-primary-foreground ml-auto'
+                      : 'bg-muted/50 text-foreground'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+
+                {message.type === 'user' && (
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+                      <User className="h-4 w-4 text-secondary" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {isLoading && (
+              <div className="flex gap-3 justify-start">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
                 </div>
-              )}
-              
-              <div
-                className={`max-w-[70%] rounded-lg p-3 ${
-                  message.type === 'user'
-                    ? 'bg-primary text-primary-foreground ml-auto'
-                    : 'bg-muted/50 text-foreground'
-                }`}
-              >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <p className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
-              </div>
-
-              {message.type === 'user' && (
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
-                    <User className="h-4 w-4 text-secondary" />
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">Thinking...</span>
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-primary" />
-                </div>
               </div>
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">Thinking...</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-
-      <div className="p-4 border-t border-border/20">
-        <div className="flex gap-2">
-          <Textarea
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="resize-none min-h-[40px] max-h-[120px] bg-background/50 border-border/50 focus:border-primary/50"
-            disabled={isLoading}
-          />
-          <Button
-            onClick={sendMessage}
-            disabled={!inputValue.trim() || isLoading}
-            className="px-3"
-            variant="default"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
             )}
-          </Button>
+          </div>
+        </ScrollArea>
+
+        <div className="p-4 border-t border-border/20">
+          <div className="flex gap-2">
+            <Textarea
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="resize-none min-h-[40px] max-h-[120px] bg-background/50 border-border/50 focus:border-primary/50"
+              disabled={isLoading}
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              className="px-3"
+              variant="default"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
